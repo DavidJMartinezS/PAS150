@@ -70,7 +70,7 @@ shinyServer(function(input,output, session){
       return(
         uso_veg() %>%
           rename_all(~str_to_lower(stri_trans_general(.,"Latin-ASCII"))) %>%
-          select("uso", "subuso","formacion","tipo_for","subtipo_fo","f_ley20283","bnp_ecc") %>% 
+          dplyr::select("uso", "subuso","formacion","tipo_for","subtipo_fo","f_ley20283","bnp_ecc") %>% 
           st_drop_geometry() %>% 
           sapply(unique)
       ) 
@@ -189,7 +189,7 @@ shinyServer(function(input,output, session){
     BD_flora() %>%
     rename_all( ~ str_to_lower(stri_trans_general(., "Latin-ASCII"))) %>%
     summarise_all(is.numeric) %>%
-    select('sup_parcela', 'utm_e', 'utm_n', 'n_ind') %>% 
+    dplyr::select('sup_parcela', 'utm_e', 'utm_n', 'n_ind') %>% 
     all()) {
       return(
         list(
@@ -204,7 +204,7 @@ shinyServer(function(input,output, session){
     BD_flora %>%
     rename_all( ~ str_to_lower(stri_trans_general(., "Latin-ASCII"))) %>%
     summarise_all(is.numeric) %>%
-    select('sup_parcela', 'utm_e', 'utm_n', 'n_ind') %>% 
+    dplyr::select('sup_parcela', 'utm_e', 'utm_n', 'n_ind') %>% 
     all() == F) {
       return(
         list(
@@ -229,7 +229,7 @@ shinyServer(function(input,output, session){
     BD_fore() %>%
     rename_all( ~ str_to_lower(stri_trans_general(., "Latin-ASCII"))) %>%
     summarise_all(is.numeric) %>%
-    select('sup_parcela', 'utm_e', 'utm_n', 'dap', 'altura', 'n_ind') %>% 
+    dplyr::select('sup_parcela', 'utm_e', 'utm_n', 'dap', 'altura', 'n_ind') %>% 
     all()) {
       return(
         list(
@@ -244,7 +244,7 @@ shinyServer(function(input,output, session){
     BD_fore() %>%
     rename_all( ~ str_to_lower(stri_trans_general(., "Latin-ASCII"))) %>%
     summarise_all(is.numeric) %>%
-    select('sup_parcela', 'utm_e', 'utm_n', 'dap', 'altura', 'n_ind') %>% 
+    dplyr::select('sup_parcela', 'utm_e', 'utm_n', 'dap', 'altura', 'n_ind') %>% 
     all() == F) {
       return(
         list(
@@ -368,7 +368,7 @@ shinyServer(function(input,output, session){
   
   directorio <- reactive({
     if(all(c("root", "path") %in% names(input$directory))){
-      selected_path <- do.call(path, c(roots[input$directory$root], input$directory$path))
+      selected_path <- do.call(file.path, c(roots[input$directory$root], input$directory$path))
     } else {
       selected_path <- nullfile()
     }
@@ -763,7 +763,7 @@ shinyServer(function(input,output, session){
     if ('Otras' %in% c(TF_BNP$BNP)) {
       TF_BNP <- TF_BNP %>%
         pivot_wider(id_cols = Tipo_for, names_from = BNP,values_from = c(Sup_ha,P),names_sep = "_") %>% 
-        select(Tipo_for,ends_with(str_sub(input$sp,1,4)),ends_with('Otras'))
+        dplyr::select(Tipo_for,ends_with(str_sub(input$sp,1,4)),ends_with('Otras'))
     } else {
       TF_BNP <- TF_BNP %>%
         bind_rows(uso_veg() %>% 
@@ -778,7 +778,7 @@ shinyServer(function(input,output, session){
                     mutate(BNP = 'Otras',Sup_ha = 0, P = 0)
         ) %>% 
         pivot_wider(id_cols = Tipo_for, names_from = BNP,values_from = c(Sup_ha,P),names_sep = "_") %>% 
-        select(Tipo_for,ends_with(str_sub(input$sp,1,4)),ends_with('Otras'))
+        dplyr::select(Tipo_for,ends_with(str_sub(input$sp,1,4)),ends_with('Otras'))
     }
     
     TF_Total <- uso_veg() %>% 
@@ -861,7 +861,7 @@ shinyServer(function(input,output, session){
       filter(str_detect(F_ley20283, "preser") & str_detect(BNP_ECC,input$sp)) %>% 
       mutate(Sup_ha = st_area(geometry) %>% set_units(ha) %>% round(2)) %>%
       drop_units() %>%
-      select(F_ley20283, BNP_ECC, Sup_ha) %>% 
+      dplyr::select(F_ley20283, BNP_ECC, Sup_ha) %>% 
       relocate(Sup_ha, .before = geometry) %>% 
       arrange(Sup_ha)
     
@@ -1141,12 +1141,12 @@ shinyServer(function(input,output, session){
     req(estadisticos(), Inventarios(), uso_veg())
     estadisticos() %>% 
       filter(Variable == input$sp) %>% 
-      select(Variable, Promedio, E_rel, Int_conf) %>% 
+      dplyr::select(Variable, Promedio, E_rel, Int_conf) %>% 
       separate_wider_delim(Int_conf, delim = " - ",names = c("Int_inf","Int_sup")) %>% 
       mutate(Individuos_totales = Inventarios()$prop$Individuos_totales %>% sum(),
              param = "Densidad media") %>%
       mutate_at(vars(starts_with("Int")), as.double) %>% 
-      select(Variable, param, Promedio, E_rel, Int_inf, Int_sup, Individuos_totales) %>% 
+      dplyr::select(Variable, param, Promedio, E_rel, Int_inf, Int_sup, Individuos_totales) %>% 
       bind_rows(
         Inventarios()$prop %>% 
           mutate(
@@ -1158,7 +1158,7 @@ shinyServer(function(input,output, session){
             Int_sup = round(Promedio+Promedio*E_rel/100)
           ) %>% 
           rename(Variable = Estado) %>% 
-          select(Variable, param, Promedio, E_rel, Int_inf, Int_sup, Individuos_totales)
+          dplyr::select(Variable, param, Promedio, E_rel, Int_inf, Int_sup, Individuos_totales)
       ) %>% 
       `names<-`(c("ECC/Estado de desarrollo","Parámetro poblacional estimado","Estimación (ind/ha)","Error relativo (%)","Inf", "Sup","Total poblacional* (individuos)")) %>% 
       gt() %>% 
@@ -1230,7 +1230,7 @@ shinyServer(function(input,output, session){
       ) %>%
       addCircles(
         data = Inventarios()$BD_Nha %>% 
-          select(1,3:4,input$sp, Nha_Total) %>% 
+          dplyr::select(1,3:4,input$sp, Nha_Total) %>% 
           rename(ECC = 4) %>% 
           mutate(popup = paste0("<h2 style='font-weight: bold;text-align: center;'>",Parcela,"</h2>",
                                 "UTM E: ", round(UTM_E), "<br/>",
@@ -1288,7 +1288,7 @@ shinyServer(function(input,output, session){
       bind_rows(
         carto_digital()$BNP_int_sin_pto %>% 
           st_drop_geometry() %>% 
-          select(Obra, Especie, Afectacion, Ind_Interv) %>% 
+          dplyr::select(Obra, Especie, Afectacion, Ind_Interv) %>% 
           rename(n = 4)
       ) %>% 
       group_by(Obra, Especie, Afectacion) %>% 
@@ -1336,7 +1336,7 @@ shinyServer(function(input,output, session){
       bind_rows(
         carto_digital()$BNP_alterar_sin_pto %>% 
           st_drop_geometry() %>% 
-          select(Obra, Especie, Ind_alterar) %>% 
+          dplyr::select(Obra, Especie, Ind_alterar) %>% 
           rename(n = 3)
       ) %>% 
       group_by(Obra, Especie) %>% 
@@ -1534,7 +1534,7 @@ shinyServer(function(input,output, session){
           TRUE ~ "BNP en la cuenca"
         )
       ) %>% 
-      select(SECTOR, N, Shannon, Div.Simpson) %>% 
+      dplyr::select(SECTOR, N, Shannon, Div.Simpson) %>% 
       gt() %>% 
       cols_label(
         SECTOR = "Sector",
