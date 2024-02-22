@@ -8,12 +8,16 @@ BD_inv_for <- function(BD_fore, BNP_cuenca, cuenca, input){
     st_as_sf(coords = c("UTM_E","UTM_N"),crs=32719,remove=F) %>% 
     st_intersection(st_union(BNP_cuenca)) %>% 
     .$Parcela
+  clase_corte <- BD_fore %>% 
+    .$DAP %>% quantile(c(.99)) %>% plyr::round_any(.,accuracy = 10,f = ceiling)
+  clase_max <- BD_fore %>% 
+    .$DAP %>% max() %>% plyr::round_any(.,accuracy = 10,f = ceiling)
   BD <- BD_fore %>% 
     as_tibble() %>%
     filter(Parcela %in% pto_bnp) %>% 
     mutate_at(c("Especie","Estado"),~str_to_sentence(str_trim(.))) %>% 
     rowid_to_column('Correlativo') %>% 
-    mutate(Clase = cut(DAP,seq(0,150,10),include.lowest = F, right = F) %>% fct_explicit_na("sin información"),
+    mutate(Clase = cut(DAP,c(seq(0,clase_corte,10),clase_max),include.lowest = F, right = F) %>% fct_explicit_na("sin información"),
            Clase_l1 = map_int(Clase, function(x) {
              if (is.na(x))
                return(NA_integer_)
