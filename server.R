@@ -1321,6 +1321,10 @@ shinyServer(function(input,output, session){
         style = cell_text(style = "italic"),
         locations = list(cells_body(columns = 2))
       ) %>% 
+      tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = Subuso %>% str_detect("Total"))
+      ) %>% 
       cols_label(
         Afectacion = "Tipo (corta, eliminación, destrucción, descepado)",
         n = "N° individuos por intervenir"
@@ -1366,6 +1370,10 @@ shinyServer(function(input,output, session){
       tab_style(
         style = cell_text(style = "italic"),
         locations = list(cells_body(columns = 2))
+      ) %>% 
+      tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = Subuso %>% str_detect("Total"))
       ) %>% 
       cols_label(
         Componente = "Componente del ambiente alterado",
@@ -1439,6 +1447,10 @@ shinyServer(function(input,output, session){
           v_align = "middle"
         ),
         locations = list(cells_column_labels(), cells_column_spanners())) %>% 
+      tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = Subuso %>% str_detect("Total"))
+      ) %>% 
       cols_label(
         Obra = "Nombre de la obra",
         Sup_obra = "Superficie (ha)",
