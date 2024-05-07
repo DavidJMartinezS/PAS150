@@ -20,7 +20,6 @@ shinyUI(
     
     # Sidebar ----
     dashboardSidebar(
-      # sidebarSearchForm(textId = "SearchText",buttonId = "ButtonSearch",label = "Buscar"),
       sidebarMenu(
         menuItem("Importante", tabName = "importante", icon = icon("circle-info")),
         menuItem("Cartografía digital", tabName = "carto_digital", icon = icon("map")),
@@ -35,14 +34,8 @@ shinyUI(
           menuSubItem("Biodiversidad", tabName = "bio", icon = bs_icon("flower2"))
         ),
         menuItem("Analisis de amenazas", tabName = "lsm", icon = icon("layer-group"))
-        # menuItem("Link google", href = "https://www.google.com", icon = icon("google"))
         
       )
-      # tags$div(
-      #   class = "sidebar-footer",
-      #   helpText("Agrega alguna nota de recordatorio"),
-      #   actionButton("addItem", "Añadir nota",icon("plus"))
-      # )
     ),
     
     # Body ----
@@ -114,7 +107,6 @@ shinyUI(
               leer_sfUI("censo_id", "Ingrese shapefile de censo"),
               fileInput("bd_flora_id", "Ingrese parcelas de inventario florístico", accept = c(".xlsx")),
               fileInput("bd_fore_id", "Ingrese parcelas de inventario forestal", accept = c(".xlsx")),
-              # fileInput("bd_trans", "Ingrese parcelas de transectos lineales", accept = c(".xlsx")),
               uiOutput("ui_densidad"),
               uiOutput("down_carto_ui")
             ),
@@ -224,13 +216,6 @@ shinyUI(
               valueBoxOutput("vb_sup_bnp", width = 12),
               valueBoxOutput("vb_sup_fx", width = 12),
               valueBoxOutput("vb_n_parc", width = 12),
-              # fluidRow(
-              #   div(
-              #     infoBoxOutput("ib_n_parc", width = 6),
-              #     infoBoxOutput("ib_n_spp", width = 6),
-              #     style = "left: 15px; margin-right:30px; position: relative;"
-              #   )
-              # ),
               tabBox(
                 width = 12,
                 title = "Plotly",
@@ -330,7 +315,6 @@ shinyUI(
             ),
             box(
               width = 6,
-              # height = 550,
               title =  p(
                 "Riqueza por sector",
                 downloadButton(
@@ -348,7 +332,6 @@ shinyUI(
             )
           ),
           fluidRow(
-            # width = 6,
             box(
               width = 6,
               height = 350,
@@ -394,14 +377,12 @@ shinyUI(
                 fileInput(
                   "input_lsm",
                   "",
-                  # width = "500px",
                   accept = c(".xls")
                 ),
                 actionButtonStyled(
                   "apply_lsm",
                   label = "Generar análisis",
                   style = "margin-top:20px; margin-left:25px;",
-                  # icon = icon("download"),
                   disabled = T
                 ),
                 downloadButton(

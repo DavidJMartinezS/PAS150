@@ -1,33 +1,6 @@
 
 shinyServer(function(input,output, session){
   
-  # Add notifications ----
-  # notification <-  reactiveValues()
-  # output$menu <- renderMenu({
-  #   items <- lapply(notification, function(el) {
-  #     notificationItem(text = el$text,icon = icon("caret-right"))
-  #   })
-  #   dropdownMenu(
-  #     type = "notification", badgeStatus = "warning",icon = icon("circle-exclamation"),
-  #     .list = items
-  #   )
-  # })
-  # 
-  # observeEvent(input$addItem, {
-  #   showModal(modalDialog(title = "Añada alguna nota a sus notificaciones",
-  #                         textInput(paste0("text", input$addItem), "Nota"),
-  #                         actionButton(paste0("go", input$addItem), "Añadir notificación"),
-  #                         easyClose = TRUE, footer = NULL
-  #   ))
-  #   
-  #   observeEvent(input[[paste0("go", input$addItem)]], {
-  #     notification[[paste0(input$addItem)]] <- list(
-  #       text = input[[paste0("text", input$addItem)]]
-  #     )
-  #     removeModal()
-  #   })
-  # })
-  
   # outputs page 'Cartografía digital' ----
   uso_veg <- callModule(module = leer_sf, id = "uso_veg_id")
   observeEvent(input$alt_lgl,{
@@ -139,9 +112,6 @@ shinyServer(function(input,output, session){
     req(input$bd_fore_id)
     read.xlsx(input$bd_fore_id$datapath) %>% as_tibble()
   }) 
-  # BD_trans <- reactive({
-  #   read.xlsx(input$bd_trans_id$datapath) %>% as_tibble()
-  # }) 
   output$check2_1 <- renderPrint({
     if (c("obra") %in% names(
       obras() %>% rename_all(~str_to_lower(stri_trans_general(.,"Latin-ASCII")))
