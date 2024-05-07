@@ -56,6 +56,21 @@ mytheme <- create_theme(
   )
 )
 
+css <- HTML(
+  "/* move logo to center */
+    #logo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    /* remove hover effect */
+    #logo > a:hover {
+        background-color: transparent !important;
+        color: transparent !important;
+    }"
+)
+
 # Cargar Datos ----
 comunas <- read_sf('N:/Dashboard PAS 150/COMUNAS/COMUNAS_v1.shp')
 
