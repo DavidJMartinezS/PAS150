@@ -2,7 +2,14 @@
 shinyServer(function(input,output, session){
   
   # outputs page 'Cartografía digital' ----
-  uso_veg <- callModule(module = leer_sf, id = "uso_veg_id")
+  uso_veg <- leer_sf(id = "uso_veg_id", fx = function(x){
+    x %>% 
+      st_zm() %>% 
+      st_make_valid() %>%
+      st_collection_extract("POLYGON") %>% 
+      rename_all(~ if_else(. == "geometry", ., str_to_sentence(stri_trans_general(.,"Latin-ASCII")))) %>% 
+      rename_at(vars(contains("ecc")), str_to_upper) 
+  })
   observeEvent(input$alt_lgl,{
     output$leer_alt <- renderUI({
       if (input$alt_lgl == "Si") {
@@ -10,7 +17,7 @@ shinyServer(function(input,output, session){
       }
     })
   })
-  BNP_alterar <- callModule(module = leer_sf, id = "bnp_alterar_id")
+  BNP_alterar <- leer_sf(id = "bnp_alterar_id")
   
   observeEvent(input$bd_bio_lgl,{
     output$leer_bd_flora2 <- renderUI({
@@ -34,8 +41,8 @@ shinyServer(function(input,output, session){
     read.xlsx(input$bd_xlsx_fore$datapath)
   }) 
   
-  obras <- callModule(module = leer_sf, id = "obras_id")
-  censo <- callModule(module = leer_sf, id = "censo_id")
+  obras <- leer_sf(id = "obras_id")
+  censo <- leer_sf(id = "censo_id")
   output$check_1 <- renderPrint({
     if (c("uso", "subuso","formacion","tipo_for","subtipo_fo","f_ley20283","bnp_ecc") %in% names(
       uso_veg() %>% rename_all(~str_to_lower(stri_trans_general(.,"Latin-ASCII")))
@@ -62,7 +69,8 @@ shinyServer(function(input,output, session){
           rename_all(~str_to_lower(stri_trans_general(.,"Latin-ASCII"))) %>%
           st_drop_geometry() %>% 
           group_by(uso, subuso, formacion, f_ley20283) %>% 
-          tally()
+          tally() %>% 
+          as.data.frame()
       ) 
     } else {
       return(
@@ -79,7 +87,8 @@ shinyServer(function(input,output, session){
           rename_all(~str_to_lower(stri_trans_general(.,"Latin-ASCII"))) %>%
           st_drop_geometry() %>% 
           group_by(uso, tipo_for, subtipo_fo, f_ley20283) %>% 
-          tally()
+          tally() %>% 
+          as.data.frame()
       ) 
     } else {
       return(
@@ -96,7 +105,8 @@ shinyServer(function(input,output, session){
             rename_all(~str_to_lower(stri_trans_general(.,"Latin-ASCII"))) %>%
             st_drop_geometry() %>% 
             group_by(uso, f_ley20283, across(starts_with("ecc")), bnp_ecc) %>% 
-            tally()
+            tally() %>% 
+            as.data.frame()
         ) 
       } else {
         return(
@@ -1570,7 +1580,7 @@ shinyServer(function(input,output, session){
     }
   )
   
-  # Analisis de Fragmentación
+  # Analisis de Fragmentación ----
   observeEvent(uso_veg(),{
     shinyWidgets::updatePickerInput(
       session = session,

@@ -159,7 +159,7 @@ sector: Se refiere a si el registro se presenta dentro del área de influencia d
     st_drop_geometry() %>% 
     pull(Parcela)
   
-  pisos_bnp <- read_sf('N:/Dashboard PAS 150/Pisos_Luebert_y_Pliscoff/PisosVegetacionalesPliscoff2017.shp') %>% 
+  pisos_bnp <- read_sf(system.file("PisosVegetacionalesPliscoff2017.gdb", package = "dataPAS")) %>% 
     st_zm() %>% st_transform(32719) %>% 
     st_intersection(st_union(BNP_cuenca))
   

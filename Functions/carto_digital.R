@@ -25,7 +25,7 @@ get_carto_digital <- function(uso_veg, BNP_alt = NULL, obras, censo, sp, BD_flor
   
   get_cuenca <- function(uso_veg){
     uso_veg <- uso_veg %>% st_union()
-    cuencas <- read_sf('N:/Dashboard PAS 150/SubsubcuencasBNA/Subsubcuencas_BNA.shp') %>% 
+    cuencas <- read_sf(system.file("Subsubcuencas.gdb", package = "dataPAS")) %>% 
       st_zm() %>% 
       st_transform(crs_epsg)
     cuenca <- cuencas[uso_veg,][which.max(st_area(st_intersection(cuencas,uso_veg))),] 
@@ -34,7 +34,7 @@ get_carto_digital <- function(uso_veg, BNP_alt = NULL, obras, censo, sp, BD_flor
   cuenca <- get_cuenca(uso_veg)
   
   get_caminos <- function(cuenca){
-    read_sf('N:/Dashboard PAS 150/Red_Vial_Chile_18_07_2023.gdb') %>% 
+    read_sf(system.file("Red_vial.gdb", package = "dataPAS")) %>% 
       st_zm() %>% 
       st_transform(crs_epsg) %>%
       st_intersection(cuenca) %>% 
@@ -71,7 +71,7 @@ get_carto_digital <- function(uso_veg, BNP_alt = NULL, obras, censo, sp, BD_flor
   
   get_hidro <- function(cuenca){
     cod_ssbuc <- cuenca$COD_SSUBC
-    read_sf('N:/Dashboard PAS 150/Hidrografia_V2/Hidrografia_V2 (1).shp',query = paste0("SELECT * FROM \"Hidrografia_V2 (1)\" WHERE COD_SSUBC = '",cod_ssbuc,"'")) %>% 
+    read_sf(system.file("Red_hidrografica.gdb", package = "dataPAS"),query = paste0("SELECT * FROM \"Red_hidrografica\" WHERE COD_SSUBC = '",cod_ssbuc,"'")) %>% 
       st_set_geometry('geometry') %>% 
       st_transform(crs_epsg) %>% 
       st_intersection(st_union(cuenca)) %>% 

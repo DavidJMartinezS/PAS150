@@ -12,11 +12,11 @@ library(bsicons)
 library(dplyr)
 library(purrr)
 library(tidyr)
-library(forcats)
 library(tibble)
 library(stringr)
 library(stringi)
 library(sf)
+library(forcats)
 library(leaflet)
 library(leaflet.extras)
 library(plotly)
@@ -32,8 +32,10 @@ library(ggthemes)
 library(ggforce)
 library(gt)
 library(dipsaus)
+# devtools::install_github("DavidJMartinezS/dataPAS")
+library(dataPAS)
 
-options(shiny.maxRequestSize=30*1024^2)
+options(shiny.maxRequestSize=150*1024^2, timeout = 100)
 
 # Create the theme
 mytheme <- create_theme(
@@ -72,7 +74,7 @@ css <- HTML(
 )
 
 # Cargar Datos ----
-comunas <- read_sf('N:/Dashboard PAS 150/COMUNAS/COMUNAS_v1.shp')
+comunas <- read_sf(system.file("Comunas.gdb", package = "dataPAS"))
 
 # Cargar modulos ----
 source("Modules/leer_sf.R")
@@ -87,7 +89,7 @@ source("Functions/Estadisticos.R")
 
 get_cuenca <- function(uso_veg,crs){
   uso_veg <- uso_veg %>% st_union()
-  cuencas <- read_sf('N:/Dashboard PAS 150/SubsubcuencasBNA/Subsubcuencas_BNA.shp') %>% 
+  cuencas <- read_sf(system.file("Subsubcuencas.gdb", package = "dataPAS")) %>% 
     st_zm() %>% 
     st_transform(crs)
   cuenca <- cuencas[uso_veg,][which.max(st_area(st_intersection(cuencas,uso_veg))),] 
@@ -102,8 +104,10 @@ get_BNP_cuenca <- function(uso_veg, sp, cuenca){
     rename_all(~ if_else(. == "geometry", ., str_to_sentence(stri_trans_general(.,"Latin-ASCII")))) %>% 
     rename_at(vars(contains("ecc")), str_to_upper) %>% 
     filter(str_detect(F_ley20283, "preser") & str_detect(BNP_ECC,sp)) %>% 
-    mutate(Sup_ha = st_area(geometry) %>% set_units(ha) %>% round(2),
-           NOM_SSUBC = cuenca$NOM_SSUBC) %>% 
+    mutate(
+      Sup_ha = st_area(geometry) %>% set_units(ha) %>% round(2),
+      NOM_SSUBC = cuenca$NOM_SSUBC
+    ) %>% 
     drop_units() %>% 
     select(NOM_SSUBC, Formacion, Tipo_for, Subtipo_fo, starts_with('ECC'), F_ley20283, BNP_ECC, Sup_ha) %>% 
     relocate(Sup_ha, .before = geometry) %>% 
